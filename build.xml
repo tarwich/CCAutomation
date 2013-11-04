@@ -1,0 +1,74 @@
+<project name="CCAutomation" default="main">
+	<!--––––––––––––––––––––––––––––––––––––––––––––––––––
+	Customization
+	
+	This is the first level of properties you might want 
+	to customize
+	–––––––––––––––––––––––––––––––––––––––––––––––––––-->
+	
+	<!-- Forge Archive (Change this if you download a different version of forge) -->
+	<property name="forge.archive" value="minecraftforge-src-1.6.4-9.11.1.916.zip" />
+	
+	<!-- Paths ––––––––––––––––––––––––––––––––––––––––-->
+	<property name="dir.download" value="download" />
+	<property name="dir.forge"    value="forge-9.11.1.916" />
+	
+	
+	
+	<!--––––––––––––––––––––––––––––––––––––––––––––––––––
+
+	Forge 
+	
+	–––––––––––––––––––––––––––––––––––––––––––––––––––-->
+	<available property="forge.unzipped" file="${dir.forge}"               type="dir" />
+	<available property="forge.built"    file="${dir.forge}/forge/fml/bin" type="dir" />
+	<property  name="forge.dir" value="${dir.forge}" />
+	<!-- Forge-unzip ––––––––––––––––––––––––––––––––––-->
+	<target name="forge-unzip" unless="forge.unzipped">
+		<unzip src="${dir.download}/${forge.archive}" dest="${dir.forge}" />
+	</target>
+	<!-- Forge-build ––––––––––––––––––––––––––––––––––-->
+	<target name="forge-build" unless="forge.built">
+		<!-- Windows -->
+		<exec dir="${dir.forge}/forge" executable="cmd" osfamily="windows">
+			<arg line="/c install.cmd"/>
+		</exec>
+		<!-- Unix / Mac -->
+		<exec dir="${dir.forge}/forge" executable="sh" osfamily="unix">
+			<arg value="install.sh"/>
+		</exec>
+	</target>
+	<!-- Forge ––––––––––––––––––––––––––––––––––––––––-->
+	<target name="forge" depends="forge-unzip,forge-build" />
+	
+	
+	<!--––––––––––––––––––––––––––––––––––––––––––––––––––
+	
+	Main 
+	
+	–––––––––––––––––––––––––––––––––––––––––––––––––––-->
+	<target name="main" depends="forge">
+		
+	</target>
+	
+	
+	
+	<!--––––––––––––––––––––––––––––––––––––––––––––––––––
+	
+	Clean
+	
+	–––––––––––––––––––––––––––––––––––––––––––––––––––-->
+	<target name="clean">
+		<!-- Remove the forge directory -->
+		<delete dir="${dir.forge}" />
+	</target>
+	
+	
+	
+	<!--––––––––––––––––––––––––––––––––––––––––––––––––––
+	
+	Rebuild
+	
+	–––––––––––––––––––––––––––––––––––––––––––––––––––-->
+	<target name="rebuild" depends="clean,main" />
+</project>
