@@ -1,4 +1,6 @@
 
+*.jar
+*.class
 forge*
 download
 .DS_Store

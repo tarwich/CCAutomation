@@ -18,7 +18,7 @@ import cpw.mods.fml.common.registry.GameRegistry;
 	modid        = "CCAutomation",
 	dependencies = "required-after:ComputerCraft;after:CCTurtle",
 	name         = "ComputerCraft Automation Peripheral",
-	version      = "0.1"
+	version      = "0.2"
 	)
 public class CCAutomation {
 	public static class Config {

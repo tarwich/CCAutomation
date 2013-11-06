@@ -6,40 +6,21 @@
 	to customize
 	–––––––––––––––––––––––––––––––––––––––––––––––––––-->
 	
-	<!-- Forge Archive (Change this if you download a different version of forge) -->
+	<!-- Forge Archive – (Change this if you download a different version of forge) -->
 	<property name="forge.archive" value="minecraftforge-src-1.6.4-9.11.1.916.zip" />
-	
+	<property name="mod.version"   value="0.2" />
+	<property name="mod.name"      value="CCAutomation" />
+	<property name="mc.version"    value="1.6.4" />
+	<property name="jarfile"       value="${mod.name}-${mc.version}-${mod.version}.jar" />
 	<!-- Paths ––––––––––––––––––––––––––––––––––––––––-->
-	<property name="dir.download" value="download" />
-	<property name="dir.forge"    value="forge-9.11.1.916" />
-	
-	
-	
-	<!--––––––––––––––––––––––––––––––––––––––––––––––––––
-
-	Forge 
-	
-	–––––––––––––––––––––––––––––––––––––––––––––––––––-->
-	<available property="forge.unzipped" file="${dir.forge}"               type="dir" />
-	<available property="forge.built"    file="${dir.forge}/forge/fml/bin" type="dir" />
-	<property  name="forge.dir" value="${dir.forge}" />
-	<!-- Forge-unzip ––––––––––––––––––––––––––––––––––-->
-	<target name="forge-unzip" unless="forge.unzipped">
-		<unzip src="${dir.download}/${forge.archive}" dest="${dir.forge}" />
-	</target>
-	<!-- Forge-build ––––––––––––––––––––––––––––––––––-->
-	<target name="forge-build" unless="forge.built">
-		<!-- Windows -->
-		<exec dir="${dir.forge}/forge" executable="cmd" osfamily="windows">
-			<arg line="/c install.cmd"/>
-		</exec>
-		<!-- Unix / Mac -->
-		<exec dir="${dir.forge}/forge" executable="sh" osfamily="unix">
-			<arg value="install.sh"/>
-		</exec>
-	</target>
-	<!-- Forge ––––––––––––––––––––––––––––––––––––––––-->
-	<target name="forge" depends="forge-unzip,forge-build" />
+	<property name="dir.download"  value="download" />
+	<property name="dir.forge"     value="forge" />
+	<property name="dir.src"       value="src" />
+	<property name="dir.res"       value="${dir.src}/mods" />
+	<!-- Configuration ––––––––––––––––––––––––––––––––-->
+	<property name="dir.mcp"       value="${dir.forge}/forge/mcp" />
+	<property name="dir.mcpsrc"    value="${dir.mcp}/src/minecraft" />
+	<property name="dir.tmp"       value="tmp" />
 	
 	
 	<!--––––––––––––––––––––––––––––––––––––––––––––––––––
@@ -47,8 +28,29 @@
 	Main 
 	
 	–––––––––––––––––––––––––––––––––––––––––––––––––––-->
-	<target name="main" depends="forge">
-		
+	<target name="main" depends="forge,compile,package">
+		<!-- Everything is done through dependencies... perhaps not the greatest idea, but it's what we did -->
+	</target>
+	
+	
+	<!--––––––––––––––––––––––––––––––––––––––––––––––––––
+	
+	Run 
+	
+	–––––––––––––––––––––––––––––––––––––––––––––––––––-->
+	<target name="run" depends="main">
+		<!-- Copy the mod -->
+		<copy todir="${dir.mcp}/jars/mods/" file="${jarfile}" />
+		<!-- Run minecraft (windows) -->
+		<exec executable="cmd" dir="${dir.mcp}" osfamily="windows">
+			<arg value="/c startclient.bat" />
+		</exec>
+		<!-- Run minecraft (linux) -->
+		<exec executable="sh" dir="${dir.mcp}" osfamily="unix">
+			<arg value="./startclient.sh" />
+		</exec>
+		<!-- Remove our mod -->
+		<delete file="${dir.mcp}/jars/mods/${jarfile}" />
 	</target>
 	
 	
@@ -63,12 +65,105 @@
 		<delete dir="${dir.forge}" />
 	</target>
 	
+		
+	<!--––––––––––––––––––––––––––––––––––––––––––––––––––
+
+	Forge 
+	
+	–––––––––––––––––––––––––––––––––––––––––––––––––––-->
+	<!-- Properties –––––––––––––––––––––––––––––––––––-->
+	<available property="forge.unzipped" file="${dir.forge}"               type="dir" />
+	<available property="forge.built"    file="${dir.forge}/forge/fml/bin" type="dir" />
+	<property  name="forge.dir" value="${dir.forge}" />
+	
+	<!-- Forge ––––––––––––––––––––––––––––––––––––––––-->
+	<target name="forge" depends="forge-unzip,forge-build" />
+	
+	<!-- Forge-unzip ––––––––––––––––––––––––––––––––––-->
+	<target name="forge-unzip" unless="forge.unzipped">
+		<echo message="Unzipping forge" />
+		<unzip src="${dir.download}/${forge.archive}" dest="${dir.forge}" />
+	</target>
+	
+	<!-- Forge-build ––––––––––––––––––––––––––––––––––-->
+	<target name="forge-build" unless="forge.built">
+		<echo message="Running the forge installer. This could take 10-20 minutes and will have periods of seeming inactivity." />
+		<!-- Windows -->
+		<exec dir="${dir.forge}/forge" executable="cmd" osfamily="windows">
+			<arg line="/c install.cmd"/>
+		</exec>
+		<!-- Unix / Mac -->
+		<exec dir="${dir.forge}/forge" executable="sh" osfamily="unix">
+			<arg value="install.sh"/>
+		</exec>
+	</target>
 	
 	
 	<!--––––––––––––––––––––––––––––––––––––––––––––––––––
 	
-	Rebuild
+	Compile
 	
 	–––––––––––––––––––––––––––––––––––––––––––––––––––-->
-	<target name="rebuild" depends="clean,main" />
+	<!-- See if the mod is up to date -->
+	<uptodate property="mod.uptodate" targetfile="${jarfile}">
+		<srcfiles dir="${dir.src}" includes="**/*.java" />
+		<srcfiles dir="${dir.res}" includes="**/*" />
+	</uptodate>
+	<!-- Compile ––––––––––––––––––––––––––––––––––––––-->
+	<target name="compile" unless="${mod.uptodate}">
+		<!-- Copy my sources to the mcp sources -->
+		<copy todir="${dir.mcpsrc}">
+			<fileset dir="${dir.src}" />
+		</copy>
+		<!-- Recompile (windows / untested) -->
+		<exec executable="cmd" dir="${dir.mcp}" osfamily="windows">
+			<arg value="/c recompile.bat" />
+		</exec>
+		<!-- Recompile (unix) -->
+		<exec executable="sh" dir="${dir.mcp}" osfamily="unix">
+			<arg value="./recompile.sh" />
+		</exec>
+	</target>
+	
+	
+	<!--––––––––––––––––––––––––––––––––––––––––––––––––––
+	
+	Package 
+	
+	–––––––––––––––––––––––––––––––––––––––––––––––––––-->
+	<target name="package" unless="${mod.uptodate}">
+		<!-- Setup our folder for making the jar -->
+		<mkdir dir="${dir.tmp}" />
+		<copy todir="${dir.tmp}">
+			<fileset dir="${dir.mcp}/bin/minecraft" includes="com/samueldillow/**/*" />
+			<fileset dir="${dir.src}" includes="mods/**/*" />
+		</copy>
+		<!-- Make the jar -->
+		<jar destfile="${jarfile}" basedir="${dir.tmp}" />
+		<!-- Reset the class folders to post-forge install -->
+		<delete includeemptydirs="true">
+			<!-- The compilation results -->
+			<fileset dir="${dir.mcp}/src/minecraft/com/samueldillow" />
+			<!-- <fileset dir="${dir.mcp}/bin/minecraft/com/samueldillow" /> -->
+			<fileset dir="${dir.mcp}/src/minecraft/dan200" />
+			<!-- <fileset dir="${dir.mcp}/bin/minecraft/dan200" /> -->
+			<!-- remove the com dir if not empty -->
+			<!-- 
+			<fileset dir="${dir.mcp}/bin/minecraft/com">
+				<and>
+					<size value="0" />
+					<type type="dir" />
+				</and>
+			</fileset>
+			 -->
+			<fileset dir="${dir.mcp}/src/minecraft/com">
+				<and>
+					<size value="0" />
+					<type type="dir" />
+				</and>
+			</fileset>
+			<!-- And our tmp folder -->
+			<fileset dir="${dir.tmp}" />
+		</delete>
+	</target>
 </project>
