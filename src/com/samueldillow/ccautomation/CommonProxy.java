@@ -1,16 +1,17 @@
 package com.samueldillow.ccautomation;
 
-import net.minecraft.block.Block;
-import net.minecraft.client.renderer.texture.IconRegister;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
+import java.io.File;
 
 import com.samueldillow.ccautomation.block.BlockCCAutomation;
 import com.samueldillow.ccautomation.computercraft.TurtleAutomation;
 
-import cpw.mods.fml.common.registry.GameRegistry;
+import cpw.mods.fml.common.FMLCommonHandler;
 
 public class CommonProxy {
+	public File getBase() {
+		return FMLCommonHandler.instance().getMinecraftServerInstance().getFile(".");
+	}
+	
 	public void preInit() {
 		// Load our block and register with everyone that needs it
 		CCAutomation.Blocks.automationBlock = BlockCCAutomation.register(); 

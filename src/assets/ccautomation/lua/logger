@@ -1,0 +1,39 @@
+-- -*- mode: lua; sublime-rulers: [39, 80]; -*-
+
+-- Logger API
+
+-- Block ID tables
+-- Typically you would only change 
+-- these if you install something that 
+-- adds or changes block ids 
+trunk_ids   = { 17 } -- Tree trunks
+leaves_ids  = { 18 } -- Leaves
+sapling_ids = { 6  } -- Saplings
+-- Lower height reduces branches (good)
+tree_height = 9;
+
+-- API Start --------------------------
+
+function test()
+	map.test()
+end
+
+local side="right"
+
+--- Monitor current direction for trees
+-- 
+-- This function tells the turtle to start monitoring for trees, and when they
+-- are found, cut them down
+function logger()
+end
+
+--- Stop logging 
+-- 
+-- This function tells the logger to stop being a logger. Used to allow the 
+-- turtle to do something else.
+--
+-- @param rtb    Tells the turtle to return to base (where it started)
+-- @param finish Tells the turtle to finish what it's doing before it stops
+function stop()
+	
+end

@@ -1,0 +1,58 @@
+-- -*- mode: lua; sublime-rulers: [39, 80, 120]; -*-
+
+
+-- API Start --------------------------
+
+-- Currently I'm not tracking the peripheral side, so this is what I'm using
+local side = "right"
+
+-- The currently active sub-api (logger, etc)
+local api 
+
+-- Load the logger API for later
+os.loadAPI("ccautomation/logger")
+if not map then os.loadAPI("ccautomation/map") end
+-- But call it something else so the logger() function will work
+loggerAPI = logger
+
+function logger()
+	-- Stop the current api
+	stopAPI()
+	-- Tell the logger api to do its thing
+	loggerAPI.monitor()
+	-- Remember which API is active
+	api = loggerAPI
+end
+
+function look(direction)
+	return peripheral.call(side, "look", direction or "forward")
+end
+
+--- Stop the currently running api
+-- 
+-- This function will check the registered api and tell it to stop
+-- 
+-- Having multiple apis running would be a bad thing for several reasons. One is
+-- that you could have conflicts with task lists, and the other is that 
+-- currently we only track one api at a time, so you have no way to interact 
+-- with the original if you start a second
+-- 
+-- @return nil
+function stopAPI()
+	-- If an api is currently registered, then stop it
+	-- if api then api.stop() end
+end
+
+function suck()
+	return turtle.suck()
+end
+
+function test()
+	map.test()
+	loggerAPI.test()
+	loggerAPI.test()
+end
+
+function use(direction) 
+	return peripheral.call(side, "use", direction or "forward")
+end

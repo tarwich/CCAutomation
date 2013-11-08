@@ -1,0 +1,8 @@
+-- -*- mode: lua; sublime-rulers: [39, 80]; -*- --
+
+local value = 0
+
+function test()
+	value = value + 1
+	print(value)
+end
